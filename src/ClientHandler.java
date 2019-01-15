@@ -14,7 +14,9 @@ public class ClientHandler implements Runnable {
         System.out.println(Thread.currentThread().getName() + ": Started ClientHandler");
 
         while(!Thread.currentThread().isInterrupted()){
-
+            try {
+                Thread.sleep(1000);
+            }catch(InterruptedException e){break;}
          }
 
 

@@ -28,8 +28,9 @@ public class Driver {
             switch(input){
 
                 case "killAll":
-                    for(int i = 0; i < connections.size(); i++){
-                        connections.get(i).interrupt();
+
+                    while(connections.size() != 0){
+                        connections.get(0).interrupt();
                     }
 
                     break;
