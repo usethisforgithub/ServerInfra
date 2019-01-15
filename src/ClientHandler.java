@@ -11,7 +11,14 @@ public class ClientHandler implements Runnable {
 
 
     public void run() {
-        System.out.println("Started ClientHandler");
+        System.out.println(Thread.currentThread().getName() + ": Started ClientHandler");
+
+        while(!Thread.currentThread().isInterrupted()){
+
+         }
+
+
+
 
         try {
             socket.close();
@@ -19,7 +26,7 @@ public class ClientHandler implements Runnable {
             e.printStackTrace();
         }
         Driver.connections.remove(Thread.currentThread());
-        System.out.println("Ended ClientHandler");
+        System.out.println(Thread.currentThread().getName() + ": Ended ClientHandler");
     }
 
 }

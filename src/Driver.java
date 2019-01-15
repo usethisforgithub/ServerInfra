@@ -12,7 +12,7 @@ public class Driver {
 
 
     public static void main(String[] args){
-        System.out.println("Welcome to the server.");
+        System.out.println("Server: Welcome to the server.");
 
         boolean sentinel = true;
 
@@ -23,14 +23,38 @@ public class Driver {
 
 
         while(sentinel){
-            System.out.print(">");
+            System.out.println(">");
             String input = keyboard.nextLine();
             switch(input){
-                case "quit":
-                    sentinel = false;
+                case "killCon":
+                    System.out.println("Thread to kill?");
+                    input = keyboard.nextLine();
+                    boolean matched = false;
+                    for(int i = 0; i < connections.size(); i++){
+                        if(connections.get(i).getName().equals(input)){
+                            matched = true;
+                            connections.get(i).interrupt();
+                            break;
+                        }
+                    }
+                    if(matched){
+                        System.out.println("Server: Deleted thread '"+ input +"'");
+                    }else{
+                        System.out.println("Server: No thread with the given name existed");
+                    }
+
+
                     break;
 
-
+                case "listConnections":
+                    System.out.println("Server: " + connections.size() + " connections to the server:");
+                    for(int i = 0; i < connections.size(); i++){
+                        System.out.println(connections.get(i).getName());
+                    }
+                    break;
+                case "#connections":
+                    System.out.println(connections.size() + " connections to the server");
+                    break;
 
                 case "open":
 
@@ -40,11 +64,13 @@ public class Driver {
                         currentCL.start();
                     } else{
 
-                            System.out.println("Already open");
+                            System.out.println("Server: Already open");
 
                     }
                     break;
 
+                case "quit":
+                    sentinel = false;
 
                 case "close":
                     if(currentCL != null && currentCL.isAlive()){
@@ -60,10 +86,10 @@ public class Driver {
                                 e.printStackTrace();
                             }
                         }else{
-                            System.out.println("Already in the process of closing. Should close soon");
+                            System.out.println("Server: Already in the process of closing. Should close soon");
                         }
                     }else{
-                        System.out.println("Already closed");
+                        System.out.println("Server: Already closed");
                     }
                     break;
             }
