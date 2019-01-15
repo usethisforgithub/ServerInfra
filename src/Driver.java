@@ -5,6 +5,8 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import org.apache.commons.cli.*;
+
 public class Driver {
 
     static ArrayList<Thread> connections = new ArrayList<Thread>();
@@ -12,6 +14,13 @@ public class Driver {
 
 
     public static void main(String[] args){
+       
+
+
+
+
+
+
         System.out.println("Server: Welcome to the server.");
 
         boolean sentinel = true;
