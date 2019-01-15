@@ -26,6 +26,15 @@ public class Driver {
             System.out.println(">");
             String input = keyboard.nextLine();
             switch(input){
+
+                case "killAll":
+                    for(int i = 0; i < connections.size(); i++){
+                        connections.get(i).interrupt();
+                    }
+
+                    break;
+
+
                 case "killCon":
                     System.out.println("Thread to kill?");
                     input = keyboard.nextLine();
@@ -52,9 +61,7 @@ public class Driver {
                         System.out.println(connections.get(i).getName());
                     }
                     break;
-                case "#connections":
-                    System.out.println(connections.size() + " connections to the server");
-                    break;
+
 
                 case "open":
 
