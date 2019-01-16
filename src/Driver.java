@@ -1,6 +1,4 @@
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -13,6 +11,9 @@ public class Driver {
 
     private static ArrayList<Thread> connections = new ArrayList<Thread>();
     private static BufferedWriter bw = null;
+    private static ArrayList<Account> accountList = new ArrayList<Account>();
+
+
 
 
 
@@ -28,7 +29,7 @@ public class Driver {
         }
 
 
-
+        loadAccounts();
 
 
 
@@ -158,6 +159,23 @@ public class Driver {
     private static void killAll(){
         while(connections.size() != 0){
             connections.get(0).interrupt();
+        }
+    }
+
+    private static void loadAccounts(){
+        try {
+            BufferedReader in = new BufferedReader(new FileReader("AccountsSaved.txt"));
+            String line;
+            String[] accountAttributes = new String[2];
+            while ((line = in.readLine()) != null) {
+                //use String file here
+                accountAttributes[0] = line;//username
+                line = in.readLine();
+                accountAttributes[1] = line;//passwordHash
+                accountList.add(new Account(accountAttributes[0],accountAttributes[1]));
+            }
+        }catch(IOException e){
+            e.printStackTrace();
         }
     }
 
