@@ -36,7 +36,7 @@ public class ConnectionListener implements Runnable{
             ClientHandler chandler = new ClientHandler(socket);
             Thread thread = new Thread(chandler);
             thread.start();
-            Driver.connections.add(thread);
+            Driver.addConnection(thread);
         }
 
          }

@@ -1,3 +1,5 @@
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -9,12 +11,21 @@ import org.apache.commons.cli.*;
 
 public class Driver {
 
-    static ArrayList<Thread> connections = new ArrayList<Thread>();
+    private static ArrayList<Thread> connections = new ArrayList<Thread>();
+    private static BufferedWriter bw = null;
+
+
 
 
 
     public static void main(String[] args){
-       
+
+        try{
+            bw = new BufferedWriter(new FileWriter("StarterLog.txt",true));//the true will append the new data
+
+        }catch(IOException e){
+            System.err.println("IOException: " + e.getMessage());
+        }
 
 
 
@@ -112,11 +123,29 @@ public class Driver {
             }
 
         }
+        try {
+            bw.close();
+        }catch(IOException e){e.printStackTrace();}
 
 
 
+    }
 
+    public static void log(String message){
+        try {
+            bw.write(message);
+            bw.newLine();
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+    }
 
+    public static void removeConnection(Thread thread){
+        connections.remove(thread);
+    }
+
+    public static void addConnection(Thread thread){
+        connections.add(thread);
     }
 
 }

@@ -27,7 +27,7 @@ public class ClientHandler implements Runnable {
         }catch(IOException e){
             e.printStackTrace();
         }
-        Driver.connections.remove(Thread.currentThread());
+        Driver.removeConnection(Thread.currentThread());
         System.out.println(Thread.currentThread().getName() + ": Ended ClientHandler");
     }
 
