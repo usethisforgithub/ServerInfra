@@ -98,6 +98,14 @@ public class Driver {
                 case "quit":
                     sentinel = false;
                     killAll();
+                    while(connections.size()!=0){
+                        try{
+                            Thread.sleep(1000);
+                        }catch(InterruptedException e){
+                            e.printStackTrace();
+                        }
+                    }
+
 
                 case "close":
                     if(currentCL != null && currentCL.isAlive()){
