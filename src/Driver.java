@@ -49,13 +49,11 @@ public class Driver {
 
                 case "killAll":
 
-                    while(connections.size() != 0){
-                        connections.get(0).interrupt();
-                    }
+                    killAll();
 
                     break;
 
-
+                //I want to change this to kill by ID, or add kill by id eventually
                 case "killCon":
                     System.out.println("Thread to kill?");
                     input = keyboard.nextLine();
@@ -99,6 +97,7 @@ public class Driver {
 
                 case "quit":
                     sentinel = false;
+                    killAll();
 
                 case "close":
                     if(currentCL != null && currentCL.isAlive()){
@@ -146,6 +145,12 @@ public class Driver {
 
     public static void addConnection(Thread thread){
         connections.add(thread);
+    }
+
+    private static void killAll(){
+        while(connections.size() != 0){
+            connections.get(0).interrupt();
+        }
     }
 
 }
