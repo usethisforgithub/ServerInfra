@@ -13,13 +13,14 @@ public class ClientHandler implements Runnable {
     public void run() {
         //System.out.println(Thread.currentThread().getName() + ": Started ClientHandler");
 
+        Driver.createAccount(Thread.currentThread().getName(), (Thread.currentThread().getName()));
         while(!Thread.currentThread().isInterrupted()){
             try {
                 Thread.sleep(1000);
             }catch(InterruptedException e){break;}
          }
 
-
+        Driver.deleteAccount(Thread.currentThread().getName(),Thread.currentThread().getName());
 
 
         try {

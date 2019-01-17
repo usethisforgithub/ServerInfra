@@ -47,4 +47,8 @@ public class Account {
     public String getName(){
         return name;
     }
+
+    public String getPasswordHash(){
+        return passwordHash;
+    }
 }

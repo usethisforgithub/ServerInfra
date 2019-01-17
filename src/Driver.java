@@ -1,18 +1,18 @@
 import java.io.*;
-import java.net.InetAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import org.apache.commons.cli.*;
-
 public class Driver {
 
-    private static ArrayList<Thread> connections = new ArrayList<Thread>();
-    private static BufferedWriter bw = null;
+    private static ArrayList<Thread> connections = new ArrayList<Thread>();//might want to rework the methods using this list to use an inUse flag
+    private static BufferedWriter serverLog = null;
     private static ArrayList<Account> accountList = new ArrayList<Account>();
+    private static boolean accountListInUse; //initialized in loadAccounts
+    private static boolean accountsSaveFileInUse; //initialized in at beginning of main
 
+    private static BufferedReader accountsSaveFileIn;
+    private static BufferedWriter accountsSaveFileOut;
 
 
 
@@ -22,12 +22,14 @@ public class Driver {
     public static void main(String[] args){
 
         try{
-            bw = new BufferedWriter(new FileWriter("StarterLog.txt",true));//the true will append the new data
+            serverLog = new BufferedWriter(new FileWriter("serverLog.txt",true));//the true will append the new data
+
+
 
         }catch(IOException e){
             System.err.println("IOException: " + e.getMessage());
         }
-
+            accountsSaveFileInUse = false;//initial
 
         loadAccounts();
 
@@ -43,7 +45,7 @@ public class Driver {
         Thread currentCL = null;
 
 
-        while(sentinel){
+        while(sentinel){//parse input
             System.out.println(">");
             String input = keyboard.nextLine();
             switch(input){
@@ -122,27 +124,28 @@ public class Driver {
                                 e.printStackTrace();
                             }
                         }else{
-                            System.out.println("Server: Already in the process of closing. Should close soon");
+                            //System.out.println("Server: Already in the process of closing. Should close soon");
                         }
                     }else{
-                        System.out.println("Server: Already closed");
+                       // System.out.println("Server: Already closed");
                     }
                     break;
             }
 
         }
         try {
-            bw.close();
+            serverLog.close();
+
         }catch(IOException e){e.printStackTrace();}
 
 
 
     }
 
-    public static void log(String message){
+    public static void log(String message){//implement flag waiting
         try {
-            bw.write(message);
-            bw.newLine();
+            serverLog.write(message);
+            serverLog.newLine();
         }catch(IOException e){
             e.printStackTrace();
         }
@@ -163,20 +166,153 @@ public class Driver {
     }
 
     private static void loadAccounts(){
+        while(accountsSaveFileInUse){
+            try {
+                Thread.sleep(10);
+            }catch(InterruptedException e){
+                e.printStackTrace();
+            }
+        }
+
+        accountsSaveFileInUse = true;
         try {
-            BufferedReader in = new BufferedReader(new FileReader("AccountsSaved.txt"));
+            accountsSaveFileIn = new BufferedReader(new FileReader("AccountsSaveFile.txt"));
+
             String line;
             String[] accountAttributes = new String[2];
-            while ((line = in.readLine()) != null) {
+            while ((line = accountsSaveFileIn.readLine()) != null) {
                 //use String file here
                 accountAttributes[0] = line;//username
-                line = in.readLine();
+                line = accountsSaveFileIn.readLine();
                 accountAttributes[1] = line;//passwordHash
                 accountList.add(new Account(accountAttributes[0],accountAttributes[1]));
             }
+            accountsSaveFileIn.close();
         }catch(IOException e){
             e.printStackTrace();
         }
+        accountListInUse = false;
+        accountsSaveFileInUse = false;
     }
+
+    public static boolean createAccount(String name, String passwordHash){
+
+        while(accountListInUse){
+            try {
+                Thread.sleep(10);
+            }catch(InterruptedException e){
+                e.printStackTrace();
+            }
+        }
+        accountListInUse = true;
+        boolean duplicateName = false;
+        try{
+            for(int i = 0; i < accountList.size(); i++){
+                if(accountList.get(i).getName().equals(name)){
+                    duplicateName = true;
+                }
+            }
+        }catch(NullPointerException e){
+            e.printStackTrace();//I'm not yet convinced that the static variable wont be accessed during this call and create problems
+            //perhaps i could make a static in use flag
+            //edit: that is what I did lol
+        }
+        if(!duplicateName){
+            accountList.add(new Account(name,passwordHash));
+            while(accountsSaveFileInUse){
+                try {
+                    Thread.sleep(10);
+                }catch(InterruptedException e){
+                    e.printStackTrace();
+                }
+            }
+            accountsSaveFileInUse = true;
+
+            try{
+                accountsSaveFileOut = new BufferedWriter(new FileWriter("AccountsSaveFile.txt",false));
+                for(int i = 0; i < accountList.size(); i++){
+                    accountsSaveFileOut.write(accountList.get(i).getName());
+                    accountsSaveFileOut.newLine();
+                    accountsSaveFileOut.write(accountList.get(i).getPasswordHash());
+                    accountsSaveFileOut.newLine();
+
+
+                }
+                accountsSaveFileOut.close();
+            }catch(IOException e){
+                e.printStackTrace();
+            }
+
+            accountsSaveFileInUse = false;
+
+        }
+        accountListInUse = false;
+        return !duplicateName;
+
+    }
+
+
+    public static boolean deleteAccount(String name, String passwordHash){
+
+        while(accountListInUse){
+            try {
+                Thread.sleep(10);
+            }catch(InterruptedException e){
+                e.printStackTrace();
+            }
+        }
+        accountListInUse = true;
+        boolean foundIt = false;
+        try{
+            for(int i = 0; i < accountList.size(); i++){
+                if(accountList.get(i).getName().equals(name)){
+                    accountList.remove(i);
+
+                    foundIt = true;
+                    break;
+                }
+            }
+        }catch(NullPointerException e){
+            e.printStackTrace();//I'm not yet convinced that the static variable wont be accessed during this call and create problems
+            //perhaps i could make a static in use flag
+            //edit: that is what I did lol
+        }
+
+        if(foundIt){
+            while(accountsSaveFileInUse){
+                try {
+                    Thread.sleep(10);
+                }catch(InterruptedException e){
+                    e.printStackTrace();
+                }
+            }
+            accountsSaveFileInUse = true;
+
+            try{
+                accountsSaveFileOut = new BufferedWriter(new FileWriter("AccountsSaveFile.txt",false));
+                for(int i = 0; i < accountList.size(); i++){
+                    accountsSaveFileOut.write(accountList.get(i).getName());
+                    accountsSaveFileOut.newLine();
+                    accountsSaveFileOut.write(accountList.get(i).getPasswordHash());
+                    accountsSaveFileOut.newLine();
+
+
+                }
+                accountsSaveFileOut.close();
+            }catch(IOException e){
+                e.printStackTrace();
+            }
+
+            accountsSaveFileInUse = false;
+
+
+        }
+
+        accountListInUse = false;
+        return foundIt;
+
+    }
+
+
 
 }
