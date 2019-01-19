@@ -10,11 +10,15 @@ public class Driver {
     private static ArrayList<Account> accountList = new ArrayList<Account>();
     private static boolean accountListInUse; //initialized in loadAccounts
     private static boolean accountsSaveFileInUse; //initialized in at beginning of main
+    private static boolean connectionsListInUse;
+
+    private static boolean sentinel;
 
     private static BufferedReader accountsSaveFileIn;
     private static BufferedWriter accountsSaveFileOut;
 
 
+    private static Thread currentCL;
 
 
 
@@ -30,6 +34,7 @@ public class Driver {
             System.err.println("IOException: " + e.getMessage());
         }
             accountsSaveFileInUse = false;//initial
+            connectionsListInUse = false;
 
         loadAccounts();
 
@@ -37,12 +42,12 @@ public class Driver {
 
         System.out.println("Server: Welcome to the server.");
 
-        boolean sentinel = true;
+        sentinel = true;
 
         Scanner keyboard = new Scanner(System.in);
 
 
-        Thread currentCL = null;
+        currentCL = null;
 
 
         while(sentinel){//parse input
@@ -60,75 +65,26 @@ public class Driver {
                 case "killCon":
                     System.out.println("Thread to kill?");
                     input = keyboard.nextLine();
-                    boolean matched = false;
-                    for(int i = 0; i < connections.size(); i++){
-                        if(connections.get(i).getName().equals(input)){
-                            matched = true;
-                            connections.get(i).interrupt();
-                            break;
-                        }
-                    }
-                    if(matched){
-                        System.out.println("Server: Deleted thread '"+ input +"'");
-                    }else{
-                        System.out.println("Server: No thread with the given name existed");
-                    }
-
-
+                    killConnection(input);
                     break;
 
                 case "listConnections":
-                    System.out.println("Server: " + connections.size() + " connections to the server:");
-                    for(int i = 0; i < connections.size(); i++){
-                        System.out.println(connections.get(i).getName());
-                    }
+                    listConnections();
                     break;
 
 
                 case "open":
 
+                    openConnectionListener();
 
-                    if(currentCL == null || !currentCL.isAlive()){
-                        currentCL = new Thread(new ConnectionListener());
-                        currentCL.start();
-                    } else{
-
-                            System.out.println("Server: Already open");
-
-                    }
                     break;
 
                 case "quit":
-                    sentinel = false;
-                    killAll();
-                    while(connections.size()!=0){
-                        try{
-                            Thread.sleep(1000);
-                        }catch(InterruptedException e){
-                            e.printStackTrace();
-                        }
-                    }
-
+                    quitServer();
+                    break;
 
                 case "close":
-                    if(currentCL != null && currentCL.isAlive()){
-                        if(!currentCL.isInterrupted()){
-                            currentCL.interrupt();
-
-                            //connects to the socket to close the trailing connection
-                            Socket socket = null;
-
-                            try{
-                                socket = new Socket("127.0.0.1", 1234);
-                            }catch(IOException e){
-                                e.printStackTrace();
-                            }
-                        }else{
-                            //System.out.println("Server: Already in the process of closing. Should close soon");
-                        }
-                    }else{
-                       // System.out.println("Server: Already closed");
-                    }
+                    closeConnectionListener();
                     break;
             }
 
@@ -160,9 +116,19 @@ public class Driver {
     }
 
     private static void killAll(){
+        while(connectionsListInUse){
+            try {
+                Thread.sleep(10);
+            }catch(InterruptedException e){
+                e.printStackTrace();
+            }
+        }
+        connectionsListInUse = true;
+
         while(connections.size() != 0){
             connections.get(0).interrupt();
         }
+        connectionsListInUse = false;
     }
 
     private static void loadAccounts(){
@@ -313,6 +279,97 @@ public class Driver {
 
     }
 
+    public static void killConnection(String name){
+
+        while(connectionsListInUse){
+            try {
+                Thread.sleep(10);
+            }catch(InterruptedException e){
+                e.printStackTrace();
+            }
+        }
+        connectionsListInUse = true;
+
+
+        boolean matched = false;
+        for(int i = 0; i < connections.size(); i++){
+            if(connections.get(i).getName().equals(name)){
+                matched = true;
+                connections.get(i).interrupt();
+                break;
+            }
+        }
+        if(matched){
+            System.out.println("Server: Deleted thread '"+ name +"'");
+        }else{
+            System.out.println("Server: No thread with the given name existed");
+        }
+        connectionsListInUse = false;
+    }
+
+    public static void listConnections(){
+        while(connectionsListInUse){
+            try {
+                Thread.sleep(10);
+            }catch(InterruptedException e){
+                e.printStackTrace();
+            }
+        }
+        connectionsListInUse = true;
+
+        System.out.println("Server: " + connections.size() + " connections to the server:");
+        for(int i = 0; i < connections.size(); i++){
+            System.out.println(connections.get(i).getName());
+        }
+
+
+        connectionsListInUse = false;
+    }
+
+    private static void openConnectionListener(){
+        if(currentCL == null || !currentCL.isAlive()){
+            currentCL = new Thread(new ConnectionListener());
+            currentCL.start();
+        } else{
+
+            System.out.println("Server: Already open");
+
+        }
+    }
+
+    private static void closeConnectionListener(){
+        if(currentCL != null && currentCL.isAlive()){
+            if(!currentCL.isInterrupted()){
+                currentCL.interrupt();
+
+                //connects to the socket to close the trailing connection
+                Socket socket = null;
+
+                try{
+                    socket = new Socket("127.0.0.1", 1234);
+                }catch(IOException e){
+                    e.printStackTrace();
+                }
+            }else{
+                //System.out.println("Server: Already in the process of closing. Should close soon");
+            }
+        }else{
+            // System.out.println("Server: Already closed");
+        }
+    }
+
+    private static void quitServer(){
+        sentinel = false;
+        killAll();
+        while(connections.size()!=0){
+            try{
+                Thread.sleep(1000);
+            }catch(InterruptedException e){
+                e.printStackTrace();
+            }
+        }
+        closeConnectionListener();
+    }
 
 
 }
