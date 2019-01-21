@@ -218,7 +218,7 @@ public class Driver {
     }
 
 
-    public static boolean deleteAccount(String name, String passwordHash){
+    public static int deleteAccount(String name, String passwordHash){
 
         while(accountListInUse){
             try {
@@ -232,9 +232,13 @@ public class Driver {
         try{
             for(int i = 0; i < accountList.size(); i++){
                 if(accountList.get(i).getName().equals(name)){
-                    accountList.remove(i);
+                    if(accountList.get(i).getPasswordHash().equals(passwordHash)){
+                        accountList.remove(i);
+                        foundIt = true;
+                    }else{
+                        return 2;//found account but wrong password
+                    }
 
-                    foundIt = true;
                     break;
                 }
             }
@@ -275,7 +279,11 @@ public class Driver {
         }
 
         accountListInUse = false;
-        return foundIt;
+        if(foundIt){
+            return 0;//successfully deleted
+        }else{
+            return 1;//account doesn't exist
+        }
 
     }
 
@@ -347,6 +355,8 @@ public class Driver {
 
                 try{
                     socket = new Socket("127.0.0.1", 1234);
+                    PrintStream socketOut = new PrintStream(socket.getOutputStream());
+                    socketOut.println("QUIT");
                 }catch(IOException e){
                     e.printStackTrace();
                 }
