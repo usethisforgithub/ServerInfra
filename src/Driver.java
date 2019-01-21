@@ -86,6 +86,11 @@ public class Driver {
                 case "close":
                     closeConnectionListener();
                     break;
+
+                case "allaccounts":
+                    printAllAccounts();
+                    break;
+
             }
 
         }
@@ -125,7 +130,7 @@ public class Driver {
         }
         connectionsListInUse = true;
 
-        while(connections.size() != 0){
+        for(int i = 0; i < connections.size(); i++){
             connections.get(0).interrupt();
         }
         connectionsListInUse = false;
@@ -337,6 +342,7 @@ public class Driver {
     private static void openConnectionListener(){
         if(currentCL == null || !currentCL.isAlive()){
             currentCL = new Thread(new ConnectionListener());
+            currentCL.setDaemon(true);
             currentCL.start();
         } else{
 
@@ -371,15 +377,84 @@ public class Driver {
     private static void quitServer(){
         sentinel = false;
         killAll();
-        while(connections.size()!=0){
-            try{
-                Thread.sleep(1000);
+
+        try{
+            Thread.sleep(2000);
+        }catch(InterruptedException e){
+            e.printStackTrace();
+        }
+
+        closeConnectionListener();
+    }
+
+    public static int logInAccount(String name, String passHash){
+        int returnVal = 3 ;//this val means no such name exists
+        while(accountListInUse){
+            try {
+                Thread.sleep(10);
             }catch(InterruptedException e){
                 e.printStackTrace();
             }
         }
-        closeConnectionListener();
+
+        accountListInUse = true;
+
+        for(int i = 0; i < accountList.size(); i++){
+            if(accountList.get(i).getName().equals(name)){
+                returnVal = accountList.get(i).logIn(passHash);
+            }
+        }
+
+        accountListInUse = false;
+
+        return returnVal;
     }
+
+    public static int logOutAccount(String name, String passHash){
+        int returnVal = 3 ;//fishy flag, received logOut for nonexistant account
+        while(accountListInUse){
+            try {
+                Thread.sleep(10);
+            }catch(InterruptedException e){
+                e.printStackTrace();
+            }
+        }
+
+        accountListInUse = true;
+
+        for(int i = 0; i < accountList.size(); i++){
+            if(accountList.get(i).getName().equals(name)){
+                returnVal = accountList.get(i).logOut(passHash);
+            }
+        }
+
+        accountListInUse = false;
+
+        return returnVal;
+    }
+
+    public static void printAllAccounts(){
+        while(accountListInUse){
+            try {
+                Thread.sleep(10);
+            }catch(InterruptedException e){
+                e.printStackTrace();
+            }
+        }
+
+        accountListInUse = true;
+
+        System.out.println(accountList.size() + " accounts");
+
+        for(int i = 0; i < accountList.size(); i++){
+            System.out.println(accountList.get(i).getName() + " " + accountList.get(i).isLoggedIn());
+        }
+
+
+        accountListInUse = false;
+    }
+
+
 
 
 }

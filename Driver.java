@@ -57,6 +57,34 @@ public class Driver {
 
                         result = connectionIn.nextLine();
                         System.out.println(result);
+                        break;
+
+                    case "login":
+                        name = keyBoard.nextLine();
+                        pass = keyBoard.nextLine();
+                        connectionOut.println("LOGIN");
+                        connectionIn.nextLine();
+                        connectionOut.println(name);
+                        connectionIn.nextLine();
+                        connectionOut.println(pass);
+
+                        result = connectionIn.nextLine();
+                        System.out.println(result);
+                        break;
+
+
+                    case "logout":
+                        name = keyBoard.nextLine();
+                        pass = keyBoard.nextLine();
+                        connectionOut.println("LOGOUT");
+                        connectionIn.nextLine();
+                        connectionOut.println(name);
+                        connectionIn.nextLine();
+                        connectionOut.println(pass);
+
+                        result = connectionIn.nextLine();
+                        System.out.println(result);
+                        break;
                 }
 
 

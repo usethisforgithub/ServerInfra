@@ -66,6 +66,15 @@ public class ClientHandler implements Runnable {
             case "DELETEACCOUNT":
                 handleDELETEACCOUNT();
                 break;
+
+            case "LOGIN":
+                handleLOGIN();
+                break;
+
+
+            case "LOGOUT":
+                handleLOGOUT();
+                break;
         }
     }
 
@@ -95,6 +104,11 @@ public class ClientHandler implements Runnable {
         connectionOut.println("OKAY");
         String accountPassHash = connectionIn.nextLine();
 
+        connectionOut.println(Driver.deleteAccount(accountName,accountPassHash));
+
+
+
+        /*
         switch(Driver.deleteAccount(accountName,accountPassHash)){
             case 0:
                 connectionOut.println("0");
@@ -107,7 +121,25 @@ public class ClientHandler implements Runnable {
             case 2:
                 connectionOut.println("2");
                 break;
-        }
+        }*/
+    }
+
+    private void handleLOGIN(){
+        connectionOut.println("OKAY");
+        String accountName = connectionIn.nextLine();
+        connectionOut.println("OKAY");
+        String accountPassHash = connectionIn.nextLine();
+
+        connectionOut.println(Driver.logInAccount(accountName,accountPassHash));
+    }
+
+    private void handleLOGOUT(){
+        connectionOut.println("OKAY");
+        String accountName = connectionIn.nextLine();
+        connectionOut.println("OKAY");
+        String accountPassHash = connectionIn.nextLine();
+
+        connectionOut.println(Driver.logOutAccount(accountName,accountPassHash));
     }
 
 }

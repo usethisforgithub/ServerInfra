@@ -2,11 +2,13 @@ public class Account {
     private String name;
     private String passwordHash;
     private boolean loggedIn;
+    boolean hostingGameServer;
 
     public Account(String n, String p){
         name = n;
         passwordHash = p;
         loggedIn = false;
+       // hostingGameServer = false;
     }
 
     public int logIn(String passHash){
@@ -16,23 +18,23 @@ public class Account {
             loggedIn = true;//successful login
             return 0;
         }else if(success && loggedIn == true){
-            return 2;//fishy flag, shows possible hacked client
+            return 2;//already logged in, fishy flag, shows possible hacked client
         }else{
             return 1;//wrong password
         }
 
     }
 
-    public int LogOut(String passHash){
+    public int logOut(String passHash){
         boolean success = passHash.equals(passwordHash);
 
         if(success && loggedIn == true){
-            loggedIn = true;//successful login
+            loggedIn = false;//successful logout
             return 0;
         }else if(success && loggedIn == false){
-            return 2;//fishy flag, shows possible hacked client
+            return 2;//already logged out, fishy flag, shows possible hacked client
         }else{
-            return 1;//fishy flag, shows possible hacked client
+            return 1;//logout without proper credentials, fishy flag, shows possible hacked client
         }
     }
 
@@ -50,5 +52,9 @@ public class Account {
 
     public String getPasswordHash(){
         return passwordHash;
+    }
+
+    public boolean isLoggedIn(){
+        return loggedIn;
     }
 }
